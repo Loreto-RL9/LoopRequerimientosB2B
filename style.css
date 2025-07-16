@@ -156,3 +156,30 @@ h1 {
     grid-template-columns: 1fr;
   }
 }
+
+/* MARQUEE SCROLL HORIZONTAL CONTINUO */
+.marquee {
+  display: flex;
+  gap: 1rem;
+  animation: scroll-left 60s linear infinite;
+  width: max-content;
+}
+
+#panel {
+  overflow: hidden;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  height: auto;
+  min-height: 400px;
+  padding: 2rem 0;
+}
+
+@keyframes scroll-left {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
