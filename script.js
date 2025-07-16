@@ -3,10 +3,7 @@ const sheetName = 'Estado';
 const url = `https://opensheet.elk.sh/${sheetID}/${sheetName}`;
 
 let empresas = [];
-let indexActual = 0;
-let intervalo;
 let pausado = false;
-let filtradas = [];
 
 async function actualizar() {
   try {
@@ -22,69 +19,63 @@ async function actualizar() {
 
 function aplicarFiltrosYRender() {
   const estadoFiltro = document.getElementById("filtroEstado").value;
-  const textoFiltro = document.getElementById("filtroTexto").value.toLowerCase();
+  const requerimientoFiltro = document.getElementById("filtroRequerimiento").value.toLowerCase();
 
-  filtradas = empresas.filter(({ Disponibilidad, RE }) =>
+  const filtradas = empresas.filter(({ Disponibilidad, RE }) =>
     (!estadoFiltro || Disponibilidad === estadoFiltro) &&
-    (!textoFiltro || (RE || '').toLowerCase().includes(textoFiltro))
+    (!requerimientoFiltro || RE.toLowerCase().includes(requerimientoFiltro))
   );
 
-  renderLoop();
+  renderLoop(filtradas);
 }
 
-function renderLoop() {
+function renderLoop(empresasFiltradas) {
   const panel = document.getElementById("panel");
-  panel.innerHTML = "";
+  panel.innerHTML = ""; // Limpiar
 
-  const tarjetasVisibles = 20; // 5 columnas x 4 filas
-  const empresasVisibles = filtradas.slice(indexActual, indexActual + tarjetasVisibles);
+  const contenedor = document.createElement("div");
+  contenedor.className = "marquee";
+  contenedor.id = "marquee-container";
 
-  if (empresasVisibles.length < tarjetasVisibles) {
-    empresasVisibles.push(...filtradas.slice(0, tarjetasVisibles - empresasVisibles.length));
-  }
-
-  empresasVisibles.forEach(({ Compradores, Disponibilidad, RE }) => {
+  empresasFiltradas.forEach(({ Compradores, Disponibilidad, RE }) => {
     const div = document.createElement("div");
     const emoji =
-      Disponibilidad === "Disponible" ? "🟢" :
-      Disponibilidad === "Ocupado" ? "🟠" : "☕";
-    div.className = `estado ${Disponibilidad}`;
-    div.innerHTML = `<strong>${emoji} ${Compradores}</strong><br><em>${RE || 'Sin requerimientos'}</em>`;
-    panel.appendChild(div);
+      Disponibilidad === "Disponible"
+        ? "🟢"
+        : Disponibilidad === "Ocupado"
+        ? "🟠"
+        : "☕";
+
+    div.className = `estado ${Disponibilidad.replace(/\s/g, '')}`;
+    div.innerHTML = `<strong>${emoji} ${Compradores}</strong><br><em>${RE || "Sin requerimientos"}</em>`;
+    contenedor.appendChild(div);
   });
+
+  // Clonamos los elementos para loop infinito
+  const clon = contenedor.cloneNode(true);
+  contenedor.appendChild(clon);
+
+  panel.appendChild(contenedor);
 }
 
-function iniciarCarrusel() {
-  clearInterval(intervalo);
-  intervalo = setInterval(() => {
-    indexActual = (indexActual + 4) % filtradas.length;
-    renderLoop();
-  }, 20000);
-}
-
+// Pausar o reanudar animación CSS
 document.getElementById("toggleCarrusel").addEventListener("click", () => {
   pausado = !pausado;
   const btn = document.getElementById("toggleCarrusel");
+  const marquee = document.getElementById("marquee-container");
+
   if (pausado) {
-    clearInterval(intervalo);
+    marquee.style.animationPlayState = "paused";
     btn.textContent = "▶️ Reanudar";
   } else {
-    iniciarCarrusel();
+    marquee.style.animationPlayState = "running";
     btn.textContent = "⏸️ Pausar";
   }
 });
 
-document.getElementById("filtroEstado").addEventListener("change", () => {
-  indexActual = 0;
-  aplicarFiltrosYRender();
-});
+document.getElementById("filtroEstado").addEventListener("change", aplicarFiltrosYRender);
+document.getElementById("filtroRequerimiento").addEventListener("input", aplicarFiltrosYRender);
 
-document.getElementById("filtroTexto").addEventListener("input", () => {
-  indexActual = 0;
-  aplicarFiltrosYRender();
-});
-
-// Inicializar
+// Carga inicial
 actualizar();
 setInterval(actualizar, 20000);
-iniciarCarrusel();
