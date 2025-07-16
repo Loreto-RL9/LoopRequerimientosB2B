@@ -16,7 +16,7 @@ async function cargarDatos() {
   try {
     const res = await fetch(url);
     empresas = await res.json();
-    renderizarEmpresas();
+    actualizarEmpresas();
     timestamp.innerText = "Última actualización: " + new Date().toLocaleTimeString();
   } catch (error) {
     console.error("Error al cargar los datos:", error);
@@ -24,8 +24,7 @@ async function cargarDatos() {
   }
 }
 
-function renderizarEmpresas() {
-  panel.innerHTML = "";
+function actualizarEmpresas() {
   const estado = filtroEstado.value;
   const texto = filtroTexto.value.toLowerCase();
 
@@ -34,19 +33,36 @@ function renderizarEmpresas() {
            (!texto || RE.toLowerCase().includes(texto));
   });
 
-  if (filtradas.length === 0) {
-    panel.innerHTML = `<div class="card">Sin coincidencias</div>`;
-    return;
-  }
+  const tarjetasExistentes = {};
+  panel.querySelectorAll('.card').forEach(card => {
+    const nombre = card.getAttribute('data-comprador');
+    if (nombre) tarjetasExistentes[nombre] = card;
+  });
+
+  const nuevos = new Set();
 
   filtradas.forEach(({ Compradores, Disponibilidad, RE }) => {
-    const div = document.createElement("div");
+    nuevos.add(Compradores);
     const emoji = Disponibilidad === "Disponible" ? "🟢" :
                   Disponibilidad === "Ocupado" ? "🟠" : "☕";
 
-    div.className = `card ${Disponibilidad}`;
-    div.innerHTML = `<strong>${emoji} ${Compradores}</strong><br><em>${RE || 'Sin requerimientos'}</em>`;
-    panel.appendChild(div);
+    if (tarjetasExistentes[Compradores]) {
+      const card = tarjetasExistentes[Compradores];
+      card.className = `card ${Disponibilidad}`;
+      card.innerHTML = `<strong>${emoji} ${Compradores}</strong><br><em>${RE || 'Sin requerimientos'}</em>`;
+    } else {
+      const div = document.createElement("div");
+      div.className = `card ${Disponibilidad}`;
+      div.setAttribute('data-comprador', Compradores);
+      div.innerHTML = `<strong>${emoji} ${Compradores}</strong><br><em>${RE || 'Sin requerimientos'}</em>`;
+      panel.appendChild(div);
+    }
+  });
+
+  Object.keys(tarjetasExistentes).forEach(nombre => {
+    if (!nuevos.has(nombre)) {
+      panel.removeChild(tarjetasExistentes[nombre]);
+    }
   });
 }
 
@@ -66,8 +82,8 @@ toggleLoop.addEventListener("click", () => {
   toggleLoop.textContent = animando ? "⏸️ Pausar" : "▶️ Reanudar";
 });
 
-filtroEstado.addEventListener("change", renderizarEmpresas);
-filtroTexto.addEventListener("input", renderizarEmpresas);
+filtroEstado.addEventListener("change", actualizarEmpresas);
+filtroTexto.addEventListener("input", actualizarEmpresas);
 
 // Inicializar
 cargarDatos();
