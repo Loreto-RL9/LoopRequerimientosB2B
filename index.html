@@ -21,20 +21,28 @@
 
     <label for="filtroTexto">Requerimiento:</label>
     <input type="text" id="filtroTexto" placeholder="Buscar..."/>
+
     <button id="toggleLoop">⏸️ Pausar</button>
   </div>
 
-  <div id="carrusel" class="scroll-container"></div>
-  <div id="timestamp"></div>
-
-  <div class="footer-logo">
-    <img src="QAS.png" alt="QAS Logo" class="logo-img left-logo"/>
-    <div class="powered-section">
-      <span class="powered-text">POWERED BY:</span>
-      <img src="https://loreto-rl9.github.io/RealTime_B2B/VECTOR.svg" alt="Valion Logo" class="logo-img right-logo"/>
-    </div>
+  <!-- Carrusel horizontal -->
+  <div id="panel" class="scroll-container">
+    <!-- Aquí se insertarán dinámicamente las tarjetas desde script.js -->
   </div>
 
+  <!-- Última actualización -->
+  <div id="timestamp"></div>
+
+  <!-- Footer con logotipos -->
+  <footer class="footer-logo">
+    <img src="QAS.png" alt="QAS Logo" class="left-logo"/>
+    <div class="powered-section">
+      <span class="powered-text">POWERED BY:</span>
+      <img src="https://loreto-rl9.github.io/RealTime_B2B/VECTOR.svg" alt="Valion Logo" class="right-logo"/>
+    </div>
+  </footer>
+
+  <!-- Script principal -->
   <script src="script.js"></script>
 </body>
 </html>
