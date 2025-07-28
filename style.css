@@ -12,9 +12,9 @@ body {
   display: flex;
   flex-direction: column;
   background: radial-gradient(circle at 30% 30%, #014b2e, transparent 40%),
-              radial-gradient(circle at 70% 70%, #030d33, transparent 40%),
+              radial-gradient(circle at 70% 70%, #1d4494, transparent 40%),
               radial-gradient(circle at 50% 100%, #4ea46a, transparent 50%);
-  background-color: #000000;
+  background-color: #030d33;
   background-blend-mode: screen;
   animation: moverFondo 20s ease-in-out infinite alternate;
 }
